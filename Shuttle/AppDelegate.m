@@ -5,6 +5,7 @@
 
 #import "AppDelegate.h"
 #import "AboutWindowController.h"
+#import "Shuttle-Swift.h"
 
 @implementation AppDelegate
 
@@ -89,6 +90,25 @@
     launchAtLoginController = [[LaunchAtLoginController alloc] init];
     // Needed to trigger the menuWillOpen event
     [menu setDelegate:self];
+
+    [self addTextEditorMenuItem];
+}
+
+// "Settings > Edit" opens the editor window; this adds the item next to it that
+// keeps the old behaviour of opening the raw JSON in a text editor.
+- (void) addTextEditorMenuItem {
+    for (NSMenuItem *item in [menu itemArray]) {
+        if (![item hasSubmenu]) {
+            continue;
+        }
+
+        NSMenuItem *textEditorItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Edit as Text…",nil)
+                                                                action:@selector(configureInTextEditor:)
+                                                         keyEquivalent:@""];
+        [textEditorItem setTarget:self];
+        [[item submenu] insertItem:textEditorItem atIndex:1];
+        break;
+    }
 }
 
 - (BOOL) needUpdateFor: (NSString*) file with: (NSDate*) old {
@@ -780,7 +800,14 @@
 }
 
 - (IBAction)configure:(id)sender {
-    
+
+    //Open the configuration editor on the file we actually read from, so a
+    //custom path set in ~/.shuttle.path is honoured.
+    [ShuttleConfigEditor showEditorForConfigAtPath:shuttleConfigFile];
+}
+
+- (IBAction)configureInTextEditor:(id)sender {
+
     //if the editor setting is omitted or contains 'default' open using the default editor.
     if([editorPref rangeOfString:@"default"].location != NSNotFound) {
         

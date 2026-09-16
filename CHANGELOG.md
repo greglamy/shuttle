@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-16
+### Added
+- A configuration editor window, replacing hand-editing of `~/.shuttle.json` for everyday changes. Open it from **Settings > Edit** in the menu. It covers both the global settings (terminal, iTerm version, default theme, default window mode, editor, launch at login, SSH config hosts and the ignore lists) and the whole `hosts` tree, with commands and groups added, duplicated, moved between groups and deleted from a source list.
+- The `[abc]` sort prefix and the `[---]` separator marker are now edited as a "Force a position in the menu" field and an "Add a separator after this entry" checkbox, so the bracket syntax never has to be typed by hand.
+- Non-blocking warnings for configurations Shuttle would silently ignore: two entries sharing a name in the same menu (only one of them ever reaches the menu), entries with no name, commands with no command line, empty groups and malformed sort keys. Selecting a warning jumps to the entry.
+- French translation of the whole editor.
+- **Settings > Edit as Text…** keeps the previous behaviour of opening the raw JSON, still honouring the `editor` key.
+
+### Changed
+- Saving from the editor preserves the `_comments` block and any key Shuttle does not know about, at the top level as well as inside a command, so hand-written configurations survive a round trip. Unknown per-command keys are listed read-only under "Other Keys".
+- The editor writes atomically, detects when another app changed the file while the window was open, and offers to overwrite or reload rather than silently clobbering it.
+- Swift is now enabled on the target (Swift 6, main-actor-by-default isolation), with the Swift optimization level set per configuration.
+
 ## [2.0.0] - 2026-09-16
 ### Changed
 - Minimum supported system is now macOS 27 (Golden Gate); the deployment target moved from 10.9 to 27.0.

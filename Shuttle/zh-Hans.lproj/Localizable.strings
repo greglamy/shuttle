@@ -22,3 +22,5 @@
 
 "is not a valid value for iTerm_version. Please fix this in the JSON file" = "不是一个有效的 iTerm_version 值。请修改 JSON 文件。";
 "bad \"iTerm_version\": \"VALUE\" in the JSON settings" = "错误的 \"iTerm_version\": \"VALUE\" 在 JSON 设置中";
+
+"Edit as Text…" = "以文本方式编辑…";

@@ -8,3 +8,148 @@
 "Version: " = "Version: ";
 " - A simple SSH shortcut menu." = " - Le gestionnaire de raccourcis SSH.";
 "Error parsing config" = "Fichier de paramétrage invalide";
+"Edit as Text…" = "Éditer comme texte…";
+
+/* ---- Configuration editor: window, sidebar and toolbar ---- */
+
+"Shuttle Configuration" = "Configuration de Shuttle";
+"Settings" = "Réglages";
+"General" = "Général";
+"Terminal" = "Terminal";
+"SSH Config" = "Configuration SSH";
+"Hosts" = "Hôtes";
+"Save" = "Enregistrer";
+"Revert" = "Revenir à l’enregistré";
+"Add" = "Ajouter";
+"Add a command or a group" = "Ajouter une commande ou un groupe";
+"Remove" = "Supprimer";
+"Remove the selected entry" = "Supprimer l’élément sélectionné";
+"Untitled" = "Sans titre";
+"No Selection" = "Aucune sélection";
+"Pick a settings page or a host in the sidebar." = "Choisissez une rubrique de réglages ou un hôte dans la barre latérale.";
+
+/* ---- Configuration editor: contextual menu ---- */
+
+"New Command" = "Nouvelle commande";
+"New Group" = "Nouveau groupe";
+"New Command Inside" = "Nouvelle commande à l’intérieur";
+"New Group Inside" = "Nouveau groupe à l’intérieur";
+"Duplicate" = "Dupliquer";
+"Move to" = "Déplacer vers";
+"Top Level" = "Niveau supérieur";
+"Delete" = "Supprimer";
+
+/* ---- Configuration editor: saving and errors ---- */
+
+"Could Not Save the Configuration" = "Enregistrement impossible";
+"Could Not Read the Configuration" = "Lecture de la configuration impossible";
+"Try Again" = "Réessayer";
+"OK" = "OK";
+"Cancel" = "Annuler";
+"The File Changed Outside Shuttle" = "Le fichier a été modifié en dehors de Shuttle";
+"Overwrite" = "Remplacer";
+"Reload from Disk" = "Recharger depuis le disque";
+"Another app or editor modified %@ after this window was opened. Overwriting discards those changes." = "Une autre app ou un éditeur a modifié %@ après l’ouverture de cette fenêtre. Remplacer annulera ces modifications.";
+"Save the changes to your configuration?" = "Enregistrer les modifications de votre configuration ?";
+"Your changes will be lost if you don't save them." = "Vos modifications seront perdues si vous ne les enregistrez pas.";
+"Don't Save" = "Ne pas enregistrer";
+"The configuration file is not a JSON object." = "Le fichier de configuration n’est pas un objet JSON.";
+
+/* ---- Configuration editor: warnings ---- */
+
+"Warnings" = "Avertissements";
+"Show configuration warnings" = "Afficher les avertissements de configuration";
+"Shuttle ignores these silently when it builds the menu." = "Shuttle les ignore silencieusement lorsqu’il construit le menu.";
+"The text editor field is empty; use \"default\" to open the file with the system handler." = "Le champ de l’éditeur de texte est vide ; utilisez « default » pour ouvrir le fichier avec l’app par défaut.";
+"An entry has no name and will not appear in the menu." = "Un élément n’a pas de nom et n’apparaîtra pas dans le menu.";
+"\"%@\" has an invalid sort key; it must be exactly three lowercase letters." = "« %@ » a une clé de tri invalide ; elle doit comporter exactement trois lettres minuscules.";
+"\"%@\" shares its name with another entry in the same menu; only one of them will be shown." = "« %@ » porte le même nom qu’un autre élément du même menu ; un seul des deux sera affiché.";
+"\"%@\" has no command to run." = "« %@ » n’a aucune commande à exécuter.";
+"\"%@\" is an empty group and will show as an empty submenu." = "« %@ » est un groupe vide et s’affichera comme un sous-menu vide.";
+
+/* ---- Global settings: general ---- */
+
+"Launch Shuttle at login" = "Lancer Shuttle à l’ouverture de session";
+"Applied the next time Shuttle reloads its menu." = "Pris en compte au prochain rechargement du menu par Shuttle.";
+"Editing the File by Hand" = "Modification manuelle du fichier";
+"Text editor" = "Éditeur de texte";
+"\"default\" opens the configuration with the app macOS associates with JSON. Any other value is run as a terminal command, for example \"nano\" or \"vi\"." = "« default » ouvre la configuration avec l’app que macOS associe au format JSON. Toute autre valeur est exécutée comme une commande du terminal, par exemple « nano » ou « vi ».";
+"Configuration file" = "Fichier de configuration";
+"Show in Finder" = "Afficher dans le Finder";
+
+/* ---- Global settings: terminal ---- */
+
+"Open commands with" = "Ouvrir les commandes avec";
+"iTerm version" = "Version d’iTerm";
+"Stable and nightly iTerm builds need different AppleScript, so this has to match the build you run." = "Les versions stable et nightly d’iTerm nécessitent des AppleScript différents : ce réglage doit correspondre à la version que vous utilisez.";
+"Defaults for Every Command" = "Valeurs par défaut de toutes les commandes";
+"By default, open in" = "Par défaut, ouvrir dans";
+"Default theme" = "Thème par défaut";
+"The name of an iTerm profile. Individual commands can override both settings." = "Le nom d’un profil iTerm. Chaque commande peut redéfinir ces deux réglages.";
+"The name of a Terminal.app profile. Individual commands can override both settings." = "Le nom d’un profil de Terminal.app. Chaque commande peut redéfinir ces deux réglages.";
+
+"New tab in the active window" = "Nouvel onglet dans la fenêtre active";
+"New window" = "Nouvelle fenêtre";
+"Current window" = "Fenêtre active";
+"New window with a virtual screen" = "Nouvelle fenêtre avec écran virtuel";
+
+/* ---- Global settings: SSH config ---- */
+
+"Show hosts from ~/.ssh/config" = "Afficher les hôtes de ~/.ssh/config";
+"Hosts read from your SSH config are added to the menu alongside the ones defined here. Entries containing \"*\" or starting with \".\" are always skipped." = "Les hôtes lus dans votre configuration SSH sont ajoutés au menu en plus de ceux définis ici. Les entrées contenant « * » ou commençant par « . » sont toujours ignorées.";
+"Ignored Hosts" = "Hôtes ignorés";
+"Skipped when the host name matches exactly." = "Ignoré lorsque le nom d’hôte correspond exactement.";
+"Ignored Keywords" = "Mots-clés ignorés";
+"Skipped when the host name contains the keyword anywhere." = "Ignoré lorsque le nom d’hôte contient le mot-clé, où qu’il se trouve.";
+"None" = "Aucun";
+"host name" = "nom d’hôte";
+"Add a Host" = "Ajouter un hôte";
+"keyword" = "mot-clé";
+"Add a Keyword" = "Ajouter un mot-clé";
+
+/* ---- Host entry: menu title ---- */
+
+"Menu Entry" = "Élément de menu";
+"Name" = "Nom";
+"Shown in the menu" = "Affiché dans le menu";
+"Add a separator after this entry" = "Ajouter un séparateur après cet élément";
+"Force a position in the menu" = "Forcer une position dans le menu";
+"Sort key" = "Clé de tri";
+"A sort key must be exactly three lowercase letters." = "Une clé de tri doit comporter exactement trois lettres minuscules.";
+"Shuttle sorts every menu alphabetically. The sort key is a hidden prefix that decides where this entry lands: \"aaa\" puts it first, \"zzz\" last." = "Shuttle trie chaque menu par ordre alphabétique. La clé de tri est un préfixe masqué qui détermine la position de cet élément : « aaa » le place en premier, « zzz » en dernier.";
+"Stored in the file as %@" = "Enregistré dans le fichier sous la forme %@";
+
+/* ---- Host entry: command ---- */
+
+"Command" = "Commande";
+"Run in the terminal when the menu item is picked." = "Exécutée dans le terminal lorsque l’élément de menu est choisi.";
+"Opens in" = "Ouvrir dans";
+"Use the global setting (%@)" = "Utiliser le réglage global (%@)";
+"Theme" = "Thème";
+"Window title" = "Titre de la fenêtre";
+"Menu title" = "Titre du menu";
+"Leave a field empty to inherit the global setting." = "Laissez un champ vide pour hériter du réglage global.";
+"Other Keys" = "Autres clés";
+"Shuttle does not use these, and this editor leaves them untouched when saving." = "Shuttle ne les utilise pas, et cet éditeur les conserve intactes à l’enregistrement.";
+
+/* ---- Host entry: group ---- */
+
+"Submenu" = "Sous-menu";
+"Entries" = "Éléments";
+"Empty" = "Vide";
+"A group becomes a submenu of the Shuttle menu." = "Un groupe devient un sous-menu du menu Shuttle.";
+
+/* ---- Menu bar installed while the editor window is open ---- */
+
+"About %@" = "À propos de %@";
+"Hide %@" = "Masquer %@";
+"Quit %@" = "Quitter %@";
+"Edit" = "Édition";
+"Undo" = "Annuler";
+"Redo" = "Rétablir";
+"Cut" = "Couper";
+"Copy" = "Copier";
+"Paste" = "Coller";
+"Select All" = "Tout sélectionner";
+"Window" = "Fenêtre";
+"Close" = "Fermer";
