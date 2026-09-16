@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0] - 2026-09-16
+### Changed
+- Minimum supported system is now macOS 27 (Golden Gate); the deployment target moved from 10.9 to 27.0.
+- Launch at login is now driven by `SMAppService` instead of the long-deprecated `LSSharedFileList` API, which no longer has any effect on current systems. The login item appears in System Settings > General > Login Items.
+- Replaced AppKit APIs and constants removed or deprecated since 10.9: `NSOKButton`/`NSFileHandlingPanelOKButton` become `NSModalResponseOK`, `NSWarningAlertStyle` becomes `NSAlertStyleWarning`, `-[NSWorkspace openFile:]` becomes `-openURL:`, and the status item image and highlight are set through its `button` rather than the deprecated `NSStatusItem` accessors.
+- Project format upgraded to Xcode 27 and the `ServiceManagement` framework is now linked.
+
+### Fixed
+- ssh commands no longer fail with "Unable to open the application: -50". `-[NSURL URLWithString:]` alone was used to decide whether a command was a URL, and on macOS 26/27 it also succeeds for plain shell commands by percent-escaping them into a relative URL with no scheme. Commands are now only handed to NSWorkspace when they really are openable URLs.
+
+### Added
 - The ability to open multiple, or same command(s) off one menu item. https://github.com/fitztrev/shuttle/issues/236
 - The ability to add a second json.config file 
 - The ability to add ```[---]``` in the name of a command to add a line seperator 

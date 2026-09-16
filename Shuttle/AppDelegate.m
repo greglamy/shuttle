@@ -70,7 +70,7 @@
     // Create the status bar item
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
     [statusItem setMenu:menu];
-    [statusItem setImage: regularIcon];
+    [[statusItem button] setImage: regularIcon];
     
     // Check for AppKit Version, add support for darkmode if > 10.9
     BOOL oldAppKitVersion = (floor(NSAppKitVersionNumber) <= 1265);
@@ -82,8 +82,8 @@
     }
     // Load the alt image for OS X < 10.10
     else{
-        [statusItem setHighlightMode:YES];
-        [statusItem setAlternateImage: altIcon];
+        [[[statusItem button] cell] setHighlightsBy:NSChangeBackgroundCellMask];
+        [[statusItem button] setAlternateImage: altIcon];
     }
     
     launchAtLoginController = [[LaunchAtLoginController alloc] init];
@@ -555,10 +555,10 @@
     
     //script expects the following order: Command, Theme, Title unless its virtual which bypasses the url check and expects Command, Title
     NSArray *passParameters;
-    NSURL *url;
+    NSURL *url = nil;
     if ( ![terminalWindow isEqualToString:@"virtual"] ) {
         passParameters = @[escapedObject, terminalTheme, terminalTitle];
-        url = [NSURL URLWithString:escapedObject];
+        url = [self openableURLForCommand:escapedObject];
     }
     else {
         passParameters = @[escapedObject, terminalTitle];
@@ -649,6 +649,32 @@
     }
 }
 
+- (NSURL *) openableURLForCommand:(NSString *)command {
+    //Returns a URL only when the command really is a URL that the workspace can open,
+    //and nil when it is a shell command that has to be run in a terminal.
+    //
+    //-[NSURL URLWithString:] alone is not a reliable test: as of macOS 26/27 it also
+    //succeeds for plain shell commands by percent-escaping them into a *relative* URL
+    //(no scheme). Handing such a URL to NSWorkspace fails with paramErr (-50), which is
+    //why every ssh command started showing "Unable to open the application: -50".
+    if ([command rangeOfCharacterFromSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].location != NSNotFound) {
+        return nil;
+    }
+    
+    NSURL *url = [NSURL URLWithString:command];
+    if (url == nil || [url scheme] == nil) {
+        return nil;
+    }
+    
+    //Make sure an application is actually registered for that scheme, otherwise the
+    //command is still better off being run in a terminal.
+    if ([[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:url] == nil) {
+        return nil;
+    }
+    
+    return url;
+}
+
 - (void) runScript:(NSString *)scriptPath handler:(NSString*)handlerName parameters:(NSArray*)parametersInArray {
     //special thanks to stackoverflow.com/users/316866/leandro for pointing me the right direction.
     //see http://goo.gl/olcpaX
@@ -707,7 +733,7 @@
 - (IBAction)showImportPanel:(id)sender {
     NSOpenPanel * openPanelObj	= [NSOpenPanel openPanel];
     NSInteger tvarNSInteger	= [openPanelObj runModal];
-    if(tvarNSInteger == NSOKButton){
+    if(tvarNSInteger == NSModalResponseOK){
         //Backup the current configuration
         [[NSFileManager defaultManager] moveItemAtPath:shuttleConfigFile toPath: [NSHomeDirectory() stringByAppendingPathComponent:@".shuttle.json.backup"] error: nil];
         
@@ -727,7 +753,7 @@
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setInformativeText:errorInfo];
     [alert setMessageText:errorMessage];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setAlertStyle:NSAlertStyleWarning];
     
     if (continueOption) {
         [alert addButtonWithTitle:NSLocalizedString(@"Quit",nil)];
@@ -746,7 +772,7 @@
     NSSavePanel * savePanelObj	= [NSSavePanel savePanel];
     //Display the Save Panel
     NSInteger result	= [savePanelObj runModal];
-    if (result == NSFileHandlingPanelOKButton) {
+    if (result == NSModalResponseOK) {
         NSURL *saveURL = [savePanelObj URL];
         // then copy a previous file to the new location
         [[NSFileManager defaultManager] copyItemAtPath:shuttleConfigFile toPath:saveURL.path error:nil];
@@ -758,7 +784,7 @@
     //if the editor setting is omitted or contains 'default' open using the default editor.
     if([editorPref rangeOfString:@"default"].location != NSNotFound) {
         
-        [[NSWorkspace sharedWorkspace] openFile:shuttleConfigFile];
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:shuttleConfigFile]];
     }
     else{
         //build the editor command

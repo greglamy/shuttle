@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3.0</string>
+	<string>2.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>1.3.0</string>
+	<string>2.0.0</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
@@ -29,12 +29,12 @@
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Shuttle needs Automation privileges in Security &amp; Privacy to run applescripts</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2016 Trevor Fitzgerald. All rights reserved.</string>
+	<string>Copyright © 2016 Trevor Fitzgerald. Copyrights © 2026 Greg LAMY. All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>Product Homepage</key>
-	<string>http://fitztrev.github.io/shuttle/</string>
+	<string>https://github.com/greglamy/shuttle</string>
 </dict>
 </plist>
