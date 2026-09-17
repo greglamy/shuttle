@@ -10,6 +10,21 @@
 "Error parsing config" = "Fichier de paramétrage invalide";
 "Edit as Text…" = "Éditer comme texte…";
 
+/* ---- Status item panel ---- */
+
+"Search hosts" = "Rechercher un hôte";
+"Clear the search" = "Effacer la recherche";
+"Shuttle settings" = "Réglages de Shuttle";
+"Back" = "Retour";
+"Results" = "Résultats";
+"Favorites" = "Favoris";
+"Add to favorites" = "Ajouter aux favoris";
+"Remove from favorites" = "Retirer des favoris";
+"No Match" = "Aucun résultat";
+"No host matches what you typed." = "Aucun hôte ne correspond à votre recherche.";
+"Nothing Here" = "Rien ici";
+"This submenu has no entry." = "Ce sous-menu ne contient aucun élément.";
+
 /* ---- Configuration editor: window, sidebar and toolbar ---- */
 
 "Shuttle Configuration" = "Configuration de Shuttle";
@@ -28,6 +43,12 @@
 "Expand" = "Développer";
 "Collapse" = "Réduire";
 "No Selection" = "Aucune sélection";
+"No entry yet. Add a command or a group with the buttons below." = "Aucun élément pour l’instant. Ajoutez une commande ou un groupe avec les boutons ci-dessous.";
+"How Shuttle starts and where its configuration lives." = "Comment Shuttle démarre et où vit sa configuration.";
+"Which terminal runs your commands, and how it opens them." = "Quel terminal exécute vos commandes, et comment il les ouvre.";
+"Add the hosts of ~/.ssh/config to the menu, minus the ones you skip." = "Ajoute les hôtes de ~/.ssh/config au menu, sauf ceux que vous ignorez.";
+"A submenu of the Shuttle menu." = "Un sous-menu du menu Shuttle.";
+"No command to run yet." = "Aucune commande à exécuter pour l’instant.";
 "Pick a settings page or a host in the sidebar." = "Choisissez une rubrique de réglages ou un hôte dans la barre latérale.";
 
 /* ---- Configuration editor: contextual menu ---- */

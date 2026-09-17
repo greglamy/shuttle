@@ -102,7 +102,7 @@ private struct AboutView: View {
                 Link(destination: homepage) {
                     Label("Homepage", systemImage: "arrow.up.forward.app")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.glass)
                 .controlSize(.large)
                 .padding(.top, 18)
             }

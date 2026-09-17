@@ -62,20 +62,42 @@ struct ConfigEditorView: View {
     private var sidebar: some View {
         List(selection: $selection) {
             Section("Settings") {
-                Label("General", systemImage: "gearshape")
-                    .tag(EditorSelection.general)
-                Label("Terminal", systemImage: "apple.terminal")
-                    .tag(EditorSelection.terminal)
-                Label("SSH Config", systemImage: "key")
-                    .tag(EditorSelection.sshConfig)
+                Label {
+                    Text("General")
+                } icon: {
+                    EditorIcon(symbol: "gearshape", tint: .gray)
+                }
+                .tag(EditorSelection.general)
+
+                Label {
+                    Text("Terminal")
+                } icon: {
+                    EditorIcon(symbol: "apple.terminal", tint: .indigo)
+                }
+                .tag(EditorSelection.terminal)
+
+                Label {
+                    Text("SSH Config")
+                } icon: {
+                    EditorIcon(symbol: "key", tint: .orange)
+                }
+                .tag(EditorSelection.sshConfig)
             }
 
             Section("Hosts") {
+                if store.configuration.hosts.isEmpty {
+                    Text("No entry yet. Add a command or a group with the buttons below.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
+                }
+
                 ForEach(visibleRows) { row in
                     HostRowView(
                         node: row.node,
                         depth: row.depth,
                         isExpanded: !collapsedGroups.contains(row.id),
+                        isSelected: selection == .node(row.id),
                         toggle: { toggleGroup(row.id) }
                     )
                     // The menu is built from the row under the pointer, so it
@@ -83,6 +105,15 @@ struct ConfigEditorView: View {
                     .contextMenu {
                         HostRowMenu(store: store, node: row.node, expand: expand)
                     }
+                    // A reorderable row is a drag source, and the drag gesture
+                    // takes the click before the list can turn it into a
+                    // selection, so picking an entry is wired by hand. The
+                    // gesture is simultaneous rather than exclusive: a tap only
+                    // fires when the pointer did not move, so it never competes
+                    // with an actual drag.
+                    .simultaneousGesture(
+                        TapGesture().onEnded { selection = .node(row.id) }
+                    )
                     .tag(EditorSelection.node(row.id))
                 }
                 .reorderable()
@@ -101,9 +132,26 @@ struct ConfigEditorView: View {
         .listStyle(.sidebar)
         .navigationSplitViewColumnWidth(min: 220, ideal: 260)
         .onDeleteCommand { deleteSelection() }
+        .background { moveShortcuts }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             sidebarActions
         }
+    }
+
+    /// Key equivalents for moving the selected entry, which the rows cannot
+    /// carry themselves: the same commands sit in the contextual menu, and
+    /// invisible buttons are how a plain view registers a shortcut.
+    private var moveShortcuts: some View {
+        HStack(spacing: 0) {
+            Button("Move Up") { move(by: -1) }
+                .keyboardShortcut(.upArrow, modifiers: [.command, .option])
+
+            Button("Move Down") { move(by: 1) }
+                .keyboardShortcut(.downArrow, modifiers: [.command, .option])
+        }
+        .opacity(0)
+        .frame(width: 0, height: 0)
+        .accessibilityHidden(true)
     }
 
     private var sidebarActions: some View {
@@ -143,8 +191,13 @@ struct ConfigEditorView: View {
         }
         .buttonStyle(.borderless)
         .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(.bar)
+        .padding(.vertical, 7)
+        .background(alignment: .top) {
+            VStack(spacing: 0) {
+                Divider()
+                Rectangle().fill(.bar)
+            }
+        }
     }
 
     // MARK: Detail
@@ -215,6 +268,7 @@ struct ConfigEditorView: View {
 
             Button("Save") { save() }
                 .keyboardShortcut("s")
+                .buttonStyle(.glassProminent)
                 .disabled(!store.isDirty || store.loadFailure != nil)
         }
     }
@@ -260,6 +314,13 @@ struct ConfigEditorView: View {
         store.remove(id: id)
     }
 
+    private func move(by offset: Int) {
+        guard let id = selectedNodeID else { return }
+        withAnimation(.snappy(duration: 0.18)) {
+            store.move(id: id, by: offset)
+        }
+    }
+
     private func save() {
         if store.fileChangedOutsideEditor {
             showingOutsideChangeAlert = true
@@ -300,6 +361,7 @@ private struct HostRowView: View {
     let node: HostNode
     let depth: Int
     let isExpanded: Bool
+    let isSelected: Bool
     let toggle: () -> Void
 
     var body: some View {
@@ -324,13 +386,25 @@ private struct HostRowView: View {
                 Text(node.name.text.isEmpty ? String(localized: "Untitled") : node.name.text)
                     .italic(node.name.text.isEmpty)
             } icon: {
-                Image(systemName: node.isGroup ? "folder" : "terminal")
+                EditorIcon(
+                    symbol: node.isGroup ? "folder.fill" : "apple.terminal.fill",
+                    tint: node.isGroup ? .shuttleGroup : .shuttleCommand
+                )
             }
         }
         .padding(.leading, CGFloat(depth) * 14)
         // Make the whole width of the row selectable and right-clickable, not
         // just the text.
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        // Drawn here rather than left to the list: a reorderable row does not
+        // carry its `tag` to the list, so the list never knows it is the
+        // selected one and would show nothing.
+        .background(
+            isSelected ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear),
+            in: .rect(cornerRadius: 6)
+        )
         .contentShape(.rect)
     }
 }
@@ -363,11 +437,13 @@ private struct HostRowMenu: View {
         Button("Move Up", systemImage: "arrow.up") {
             store.move(id: node.id, by: -1)
         }
+        .keyboardShortcut(.upArrow, modifiers: [.command, .option])
         .disabled(!store.canMove(id: node.id, by: -1))
 
         Button("Move Down", systemImage: "arrow.down") {
             store.move(id: node.id, by: 1)
         }
+        .keyboardShortcut(.downArrow, modifiers: [.command, .option])
         .disabled(!store.canMove(id: node.id, by: 1))
 
         if node.isGroup, let children = node.children, children.count > 1 {
@@ -434,3 +510,44 @@ private struct WarningsList: View {
         .frame(width: 360)
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+/// The store is held in `@State` on purpose: rebuilding it on every render
+/// would hand the list a tree of brand new node identities each time, which
+/// leaves the rows blank and can trip an assertion inside `List`.
+private struct EditorPreview: View {
+    @State private var store = ShuttleConfigStore(
+        fileURL: Bundle.main.url(forResource: "shuttle.default", withExtension: "json")
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appending(path: ".shuttle.json")
+    )
+
+    var body: some View {
+        ConfigEditorView(store: store)
+    }
+}
+
+/// Shows the settings pages and the window chrome. The host rows stay blank
+/// here: the reorderable list needs the real window to lay its rows out, and
+/// previewing it either renders nothing or trips an assertion inside `List`.
+/// Use the "Sidebar rows" preview below to work on a row.
+#Preview("Editor") {
+    EditorPreview()
+}
+#endif
+
+#if DEBUG
+#Preview("Sidebar rows") {
+    List {
+        Section("Hosts") {
+            HostRowView(node: .newGroup(), depth: 0, isExpanded: true, isSelected: false, toggle: {})
+            HostRowView(node: .newCommand(), depth: 1, isExpanded: false, isSelected: true, toggle: {})
+            HostRowView(node: .newCommand(), depth: 1, isExpanded: false, isSelected: false, toggle: {})
+            HostRowView(node: .newGroup(), depth: 0, isExpanded: false, isSelected: true, toggle: {})
+        }
+    }
+    .listStyle(.sidebar)
+    .frame(width: 250, height: 200)
+}
+#endif

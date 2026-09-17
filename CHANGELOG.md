@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-09-17
+### Added
+- A panel replaces the menu on a left click of the status item: a search field over every host, favourites for the ones buried in a submenu, submenu browsing, and the command line of each entry shown under its name. Keyboard: the search field takes focus on opening, ↑/↓ move the selection, ↩ runs it, ← leaves a submenu. Shuttle's own commands moved to the gear menu in the panel's header.
+- Right-clicking (or ⌃-clicking) the status item still shows the classic menu, unchanged.
+- ⌘⌥↑ and ⌘⌥↓ move the selected entry in the editor's source list, next to the existing **Move Up** and **Move Down** commands.
+
+### Changed
+- The editor window follows the macOS 27 idiom: a header on each page with a tinted symbol and a one-line description, matching badges in the source list, **Save** as a prominent Liquid Glass button, and a Liquid Glass button in the About window.
+- The source list shows a hint instead of an empty area when no host is defined yet.
+- The panel renders the menu Shuttle already builds, keeping each entry's own action, so themes, `inTerminal`, `open_in`, the alternate JSON file and the hosts merged in from `~/.ssh/config` all behave exactly as before.
+
+### Fixed
+- Clicking a host or a submenu in the editor's source list selects it again, and the selected row is highlighted. Making the rows reorderable had turned them into drag sources, which stopped the list from turning a click into a selection and from drawing the selection itself.
+- The symbols in the source list badges are no longer cramped against the edge of their badge: they are drawn to a box that is a fixed share of the badge instead of being set in a point size calibrated for the larger one.
+- The badge colour of a command is darker, so the white symbol inside it stays readable.
+
 ## [2.1.1] - 2026-09-17
 ### Changed
 - Menus follow the order of the entries in the configuration file instead of being sorted alphabetically, and the editor's source list reorders them by drag and drop. Dropping a row just under an open group files it in that submenu; **Move Up**, **Move Down** and **Move to** are in the contextual menu, and **Sort by name** commands restore an alphabetical order for one submenu or for the whole menu.

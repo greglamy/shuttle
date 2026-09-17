@@ -12,6 +12,27 @@ struct HostNodeDetailView: View {
     let nodeID: UUID
 
     var body: some View {
+        VStack(spacing: 0) {
+            let node = store.node(id: nodeID)
+            let isGroup = node?.isGroup ?? false
+
+            EditorPageHeader(
+                title: node?.name.text.isEmpty == false ? node!.name.text : String(localized: "Untitled"),
+                subtitle: isGroup
+                    ? String(localized: "A submenu of the Shuttle menu.")
+                    : (node?.command?.cmd.isEmpty == false
+                       ? node!.command!.cmd
+                       : String(localized: "No command to run yet.")),
+                symbol: isGroup ? "folder.fill" : "apple.terminal.fill",
+                tint: isGroup ? .shuttleGroup : .shuttleCommand
+            )
+
+            form
+        }
+        .navigationTitle(store.node(id: nodeID)?.name.text ?? "")
+    }
+
+    private var form: some View {
         Form {
             MenuTitleSection(name: nameBinding)
 
@@ -22,7 +43,6 @@ struct HostNodeDetailView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle(store.node(id: nodeID)?.name.text ?? "")
     }
 
     // MARK: Command

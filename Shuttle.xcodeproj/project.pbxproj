@@ -20,6 +20,7 @@
 		37443D8F305AA284001ACEE1 /* HostNodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D8E305AA284001ACEE1 /* HostNodeDetailView.swift */; };
 		37443D91305AA2A3001ACEE1 /* ShuttleConfigEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D90305AA2A3001ACEE1 /* ShuttleConfigEditor.swift */; };
 		37443D93305AA400001ACEE1 /* ShuttleAboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */; };
+		37443D95305AA500001ACEE1 /* ShuttleMenuPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D94305AA500001ACEE1 /* ShuttleMenuPanel.swift */; };
 		7E74A7C61789CE2F0079E0D2 /* shuttle.default.json in Resources */ = {isa = PBXBuildFile; fileRef = 7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */; };
 		A124BA191D45572B00218F2F /* iTerm2-stable-current-window.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A124BA161D45572B00218F2F /* iTerm2-stable-current-window.scpt */; };
 		A124BA1A1D45572B00218F2F /* iTerm2-stable-new-tab-default.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A124BA171D45572B00218F2F /* iTerm2-stable-new-tab-default.scpt */; };
@@ -55,6 +56,7 @@
 		37443D8E305AA284001ACEE1 /* HostNodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostNodeDetailView.swift; sourceTree = "<group>"; };
 		37443D90305AA2A3001ACEE1 /* ShuttleConfigEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleConfigEditor.swift; sourceTree = "<group>"; };
 		37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleAboutWindow.swift; sourceTree = "<group>"; };
+		37443D94305AA500001ACEE1 /* ShuttleMenuPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleMenuPanel.swift; sourceTree = "<group>"; };
 		7E72D21E178003ED00A6389C /* Shuttle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Shuttle.entitlements; sourceTree = "<group>"; };
 		7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shuttle.default.json; sourceTree = "<group>"; };
 		A124BA161D45572B00218F2F /* iTerm2-stable-current-window.scpt */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iTerm2-stable-current-window.scpt"; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 				0ADB3B10178EF8E2004E9BB9 /* Images */,
 				C149EC0415D5214600B1F558 /* Supporting Files */,
 				37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */,
+				37443D94305AA500001ACEE1 /* ShuttleMenuPanel.swift */,
 				37443D85305AA1CD001ACEE1 /* ConfigEditor */,
 			);
 			path = Shuttle;
@@ -308,6 +311,7 @@
 				37443D8B305AA21A001ACEE1 /* ConfigEditorView.swift in Sources */,
 				0ADB3B13178F3DE4004E9BB9 /* LaunchAtLoginController.m in Sources */,
 				37443D93305AA400001ACEE1 /* ShuttleAboutWindow.swift in Sources */,
+				37443D95305AA500001ACEE1 /* ShuttleMenuPanel.swift in Sources */,
 				37443D91305AA2A3001ACEE1 /* ShuttleConfigEditor.swift in Sources */,
 				37443D8F305AA284001ACEE1 /* HostNodeDetailView.swift in Sources */,
 				C149EC0A15D5214600B1F558 /* main.m in Sources */,
@@ -483,6 +487,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "shuttle.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

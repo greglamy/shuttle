@@ -6,6 +6,12 @@
 #import "AppDelegate.h"
 #import "Shuttle-Swift.h"
 
+// Shuttle's own items at the bottom of the menu, which come from the nib rather
+// than from the configuration: the separator, Settings, About and Quit. loadMenu
+// keeps them while it rebuilds the hosts above, and the panel shows them in its
+// gear menu instead of in the list.
+static const NSInteger kAppMenuItemCount = 4;
+
 @implementation AppDelegate
 
 - (void) awakeFromNib {
@@ -67,10 +73,13 @@
     regularIcon = [NSImage imageNamed:@"StatusIcon"];
     altIcon = [NSImage imageNamed:@"StatusIconAlt"];
     
-    // Create the status bar item
+    // Create the status bar item. The button drives the panel itself: assigning
+    // a menu to the status item would make every click pop that menu up instead.
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
-    [statusItem setMenu:menu];
     [[statusItem button] setImage: regularIcon];
+    [[statusItem button] setTarget:self];
+    [[statusItem button] setAction:@selector(statusItemClicked:)];
+    [[statusItem button] sendActionOn:NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown];
     
     // Check for AppKit Version, add support for darkmode if > 10.9
     BOOL oldAppKitVersion = (floor(NSAppKitVersionNumber) <= 1265);
@@ -128,7 +137,32 @@
     return [attributes fileModificationDate];
 }
 
+// Left click opens the panel, right click falls back to the classic menu.
+- (void) statusItemClicked:(id)sender {
+    NSEvent *event = [NSApp currentEvent];
+    BOOL wantsClassicMenu = event.type == NSEventTypeRightMouseDown
+        || (event.modifierFlags & NSEventModifierFlagControl) != 0;
+
+    [self reloadMenuIfNeeded];
+
+    if (wantsClassicMenu) {
+        [ShuttleMenuPanel closePanel];
+        [menu popUpMenuPositioningItem:nil
+                           atLocation:NSMakePoint(0, [[statusItem button] bounds].size.height + 5)
+                               inView:[statusItem button]];
+        return;
+    }
+
+    [ShuttleMenuPanel togglePanelFromButton:[statusItem button]
+                                       menu:menu
+                               appItemCount:kAppMenuItemCount];
+}
+
 - (void)menuWillOpen:(NSMenu *)menu {
+    [self reloadMenuIfNeeded];
+}
+
+- (void) reloadMenuIfNeeded {
     // Check when the config was last modified
     if ( [self needUpdateFor:shuttleConfigFile with:configModified] ||
         [self needUpdateFor:shuttleAltConfigFile with:configModified2] ||
@@ -235,9 +269,9 @@
 
 
 - (void) loadMenu {
-    // Clear out the hosts so we can start over
-    NSUInteger n = [[menu itemArray] count];
-    for (int i=0;i<n-4;i++) {
+    // Clear out the hosts so we can start over, keeping Shuttle's own items.
+    NSInteger n = [[menu itemArray] count];
+    for (NSInteger i = 0; i < n - kAppMenuItemCount; i++) {
         [menu removeItemAtIndex:0];
     }
     
