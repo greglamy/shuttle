@@ -142,37 +142,21 @@ struct HostNodeDetailView: View {
 
 // MARK: - Menu title
 
-/// Title, forced sort position and trailing separator. Shuttle encodes the last
-/// two inside the title string; this keeps the user out of that syntax.
+/// Title and trailing separator. Shuttle encodes the separator inside the title
+/// string; this keeps the user out of that syntax.
 private struct MenuTitleSection: View {
     @Binding var name: MenuItemName
-
-    @FocusState private var sortKeyFocused: Bool
 
     var body: some View {
         Section {
             TextField("Name", text: $name.text, prompt: Text("Shown in the menu"))
 
             Toggle("Add a separator after this entry", isOn: $name.addsSeparator)
-
-            Toggle("Force a position in the menu", isOn: sortOverrideBinding)
-
-            if name.sortKey != nil {
-                TextField("Sort key", text: sortKeyBinding, prompt: Text("aaa"))
-                    .focused($sortKeyFocused)
-                    .frame(maxWidth: 140)
-
-                if let sortKey = name.sortKey, !MenuItemName.isValidSortKey(sortKey) {
-                    Label("A sort key must be exactly three lowercase letters.", systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.orange)
-                        .font(.callout)
-                }
-            }
         } header: {
             Text("Menu Entry")
         } footer: {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Shuttle sorts every menu alphabetically. The sort key is a hidden prefix that decides where this entry lands: \"aaa\" puts it first, \"zzz\" last.")
+                Text("Entries appear in the menu in the order they have in the sidebar. Drag a row there to move it, or drop it just under an open group to file it in that submenu.")
                 if name.raw != name.text {
                     Text("Stored in the file as \(name.raw)")
                         .font(.caption)
@@ -180,26 +164,5 @@ private struct MenuTitleSection: View {
                 }
             }
         }
-    }
-
-    private var sortOverrideBinding: Binding<Bool> {
-        Binding(
-            get: { name.sortKey != nil },
-            set: { isOn in
-                name.sortKey = isOn ? "aaa" : nil
-                if isOn { sortKeyFocused = true }
-            }
-        )
-    }
-
-    private var sortKeyBinding: Binding<String> {
-        Binding(
-            get: { name.sortKey ?? "" },
-            set: { newValue in
-                // Keep only what Shuttle's own pattern accepts.
-                let filtered = newValue.lowercased().filter { $0.isLetter && $0.isASCII }
-                name.sortKey = String(filtered.prefix(MenuItemName.sortKeyLength))
-            }
-        )
     }
 }

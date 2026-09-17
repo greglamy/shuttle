@@ -22,6 +22,10 @@ struct ConfigEditorView: View {
     @State private var showingWarnings = false
     @State private var saveFailure: String?
     @State private var showingOutsideChangeAlert = false
+    /// The submenus that are closed in the sidebar. Tracking the closed ones
+    /// rather than the open ones keeps every submenu visible by default, new
+    /// ones included, so a drag has somewhere to land without extra clicks.
+    @State private var collapsedGroups: Set<UUID> = []
 
     /// Declared explicitly: `@State` is a macro in the 27 SDK and memberwise
     /// init synthesis is not guaranteed for views that use it.
@@ -67,7 +71,31 @@ struct ConfigEditorView: View {
             }
 
             Section("Hosts") {
-                HostOutlineRows(store: store, nodes: store.configuration.hosts)
+                ForEach(visibleRows) { row in
+                    HostRowView(
+                        node: row.node,
+                        depth: row.depth,
+                        isExpanded: !collapsedGroups.contains(row.id),
+                        toggle: { toggleGroup(row.id) }
+                    )
+                    // The menu is built from the row under the pointer, so it
+                    // acts on that entry and never on the submenu it sits in.
+                    .contextMenu {
+                        HostRowMenu(store: store, node: row.node, expand: expand)
+                    }
+                    .tag(EditorSelection.node(row.id))
+                }
+                .reorderable()
+            }
+        }
+        // The menu follows the order of the entries, so dragging a row is how
+        // the position of an entry in the Shuttle menu is set.
+        .reorderContainer(for: HostOutlineRow.self) { difference in
+            switch difference.destination.position {
+            case .end:
+                store.reorderToEnd(ids: difference.sources)
+            case .before(let targetID):
+                store.reorder(ids: difference.sources, before: targetID)
             }
         }
         .listStyle(.sidebar)
@@ -98,6 +126,20 @@ struct ConfigEditorView: View {
             .help("Remove the selected entry")
 
             Spacer()
+
+            Menu {
+                Button("Sort the Top Level by Name", systemImage: "arrow.up.arrow.down") {
+                    store.sort(group: nil)
+                }
+                Button("Sort Every Menu by Name", systemImage: "arrow.up.arrow.down") {
+                    store.sort(group: nil, recursively: true)
+                }
+            } label: {
+                Label("Sort", systemImage: "arrow.up.arrow.down")
+                    .labelStyle(.iconOnly)
+            }
+            .menuIndicator(.hidden)
+            .help("Sort entries by name")
         }
         .buttonStyle(.borderless)
         .padding(.horizontal, 10)
@@ -177,6 +219,29 @@ struct ConfigEditorView: View {
         }
     }
 
+    // MARK: Rows
+
+    /// The hosts tree flattened to the rows the sidebar shows. Flat rows keep
+    /// every entry a list row of its own, which is what lets a drag reorder
+    /// them and a right-click target the entry under the pointer.
+    private var visibleRows: [HostOutlineRow] {
+        HostOutlineRow.rows(for: store.configuration.hosts, collapsed: collapsedGroups)
+    }
+
+    private func toggleGroup(_ id: UUID) {
+        withAnimation {
+            if collapsedGroups.contains(id) {
+                collapsedGroups.remove(id)
+            } else {
+                collapsedGroups.insert(id)
+            }
+        }
+    }
+
+    private func expand(_ id: UUID) {
+        collapsedGroups.remove(id)
+    }
+
     // MARK: Actions
 
     private var selectedNodeID: UUID? {
@@ -185,6 +250,7 @@ struct ConfigEditorView: View {
 
     private func add(_ node: HostNode) {
         let parent = store.insertionTarget(for: selectedNodeID)
+        if let parent { expand(parent) }
         selection = .node(store.add(node, toGroup: parent))
     }
 
@@ -213,54 +279,76 @@ struct ConfigEditorView: View {
 
 // MARK: - Hosts outline
 
-/// Recursive sidebar rows for the hosts tree. Written by hand rather than with
-/// `OutlineGroup` so each row can carry an explicit `EditorSelection` tag.
-private struct HostOutlineRows: View {
-    let store: ShuttleConfigStore
-    let nodes: [HostNode]
+/// One row of the flattened hosts outline.
+private struct HostOutlineRow: Identifiable {
+    let node: HostNode
+    /// How deep the entry sits in the tree, used to indent the row.
+    let depth: Int
 
-    var body: some View {
-        ForEach(nodes) { node in
-            if let children = node.children {
-                DisclosureGroup {
-                    HostOutlineRows(store: store, nodes: children)
-                } label: {
-                    HostRowLabel(node: node)
-                }
-                .tag(EditorSelection.node(node.id))
-                .contextMenu { HostRowMenu(store: store, node: node) }
-            } else {
-                HostRowLabel(node: node)
-                    .tag(EditorSelection.node(node.id))
-                    .contextMenu { HostRowMenu(store: store, node: node) }
-            }
+    var id: UUID { node.id }
+
+    static func rows(for nodes: [HostNode], collapsed: Set<UUID>, depth: Int = 0) -> [HostOutlineRow] {
+        nodes.flatMap { node in
+            let row = HostOutlineRow(node: node, depth: depth)
+            guard let children = node.children, !collapsed.contains(node.id) else { return [row] }
+            return [row] + rows(for: children, collapsed: collapsed, depth: depth + 1)
         }
     }
 }
 
-private struct HostRowLabel: View {
+private struct HostRowView: View {
     let node: HostNode
+    let depth: Int
+    let isExpanded: Bool
+    let toggle: () -> Void
 
     var body: some View {
-        Label {
-            Text(node.name.text.isEmpty ? String(localized: "Untitled") : node.name.text)
-                .italic(node.name.text.isEmpty)
-        } icon: {
-            Image(systemName: node.isGroup ? "folder" : "terminal")
+        HStack(spacing: 2) {
+            if node.isGroup {
+                Button(action: toggle) {
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        .frame(width: 14, height: 14)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isExpanded ? Text("Collapse") : Text("Expand"))
+            } else {
+                Color.clear
+                    .frame(width: 14, height: 14)
+            }
+
+            Label {
+                Text(node.name.text.isEmpty ? String(localized: "Untitled") : node.name.text)
+                    .italic(node.name.text.isEmpty)
+            } icon: {
+                Image(systemName: node.isGroup ? "folder" : "terminal")
+            }
         }
+        .padding(.leading, CGFloat(depth) * 14)
+        // Make the whole width of the row selectable and right-clickable, not
+        // just the text.
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
     }
 }
 
 private struct HostRowMenu: View {
     let store: ShuttleConfigStore
     let node: HostNode
+    /// Opens a submenu, so an entry added inside a closed one stays visible.
+    let expand: (UUID) -> Void
 
     var body: some View {
         if node.isGroup {
             Button("New Command Inside", systemImage: "terminal") {
+                expand(node.id)
                 store.add(.newCommand(), toGroup: node.id)
             }
             Button("New Group Inside", systemImage: "folder") {
+                expand(node.id)
                 store.add(.newGroup(), toGroup: node.id)
             }
             Divider()
@@ -270,11 +358,30 @@ private struct HostRowMenu: View {
             store.duplicate(id: node.id)
         }
 
+        Divider()
+
+        Button("Move Up", systemImage: "arrow.up") {
+            store.move(id: node.id, by: -1)
+        }
+        .disabled(!store.canMove(id: node.id, by: -1))
+
+        Button("Move Down", systemImage: "arrow.down") {
+            store.move(id: node.id, by: 1)
+        }
+        .disabled(!store.canMove(id: node.id, by: 1))
+
+        if node.isGroup, let children = node.children, children.count > 1 {
+            Button("Sort Contents by Name", systemImage: "arrow.up.arrow.down") {
+                store.sort(group: node.id)
+            }
+        }
+
         let destinations = store.moveDestinations(for: node.id)
         if !destinations.isEmpty {
             Menu("Move to") {
                 ForEach(destinations, id: \.path) { destination in
                     Button(destination.path) {
+                        if let id = destination.id { expand(id) }
                         store.move(id: node.id, toGroup: destination.id)
                     }
                 }

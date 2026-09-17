@@ -25,6 +25,8 @@
 "Remove" = "Supprimer";
 "Remove the selected entry" = "Supprimer l’élément sélectionné";
 "Untitled" = "Sans titre";
+"Expand" = "Développer";
+"Collapse" = "Réduire";
 "No Selection" = "Aucune sélection";
 "Pick a settings page or a host in the sidebar." = "Choisissez une rubrique de réglages ou un hôte dans la barre latérale.";
 
@@ -35,9 +37,19 @@
 "New Command Inside" = "Nouvelle commande à l’intérieur";
 "New Group Inside" = "Nouveau groupe à l’intérieur";
 "Duplicate" = "Dupliquer";
+"Move Up" = "Déplacer vers le haut";
+"Move Down" = "Déplacer vers le bas";
+"Sort Contents by Name" = "Trier le contenu par nom";
 "Move to" = "Déplacer vers";
 "Top Level" = "Niveau supérieur";
 "Delete" = "Supprimer";
+
+/* ---- Configuration editor: sorting ---- */
+
+"Sort" = "Trier";
+"Sort entries by name" = "Trier les éléments par nom";
+"Sort the Top Level by Name" = "Trier le niveau supérieur par nom";
+"Sort Every Menu by Name" = "Trier tous les menus par nom";
 
 /* ---- Configuration editor: saving and errors ---- */
 
@@ -62,8 +74,6 @@
 "Shuttle ignores these silently when it builds the menu." = "Shuttle les ignore silencieusement lorsqu’il construit le menu.";
 "The text editor field is empty; use \"default\" to open the file with the system handler." = "Le champ de l’éditeur de texte est vide ; utilisez « default » pour ouvrir le fichier avec l’app par défaut.";
 "An entry has no name and will not appear in the menu." = "Un élément n’a pas de nom et n’apparaîtra pas dans le menu.";
-"\"%@\" has an invalid sort key; it must be exactly three lowercase letters." = "« %@ » a une clé de tri invalide ; elle doit comporter exactement trois lettres minuscules.";
-"\"%@\" shares its name with another entry in the same menu; only one of them will be shown." = "« %@ » porte le même nom qu’un autre élément du même menu ; un seul des deux sera affiché.";
 "\"%@\" has no command to run." = "« %@ » n’a aucune commande à exécuter.";
 "\"%@\" is an empty group and will show as an empty submenu." = "« %@ » est un groupe vide et s’affichera comme un sous-menu vide.";
 
@@ -113,10 +123,7 @@
 "Name" = "Nom";
 "Shown in the menu" = "Affiché dans le menu";
 "Add a separator after this entry" = "Ajouter un séparateur après cet élément";
-"Force a position in the menu" = "Forcer une position dans le menu";
-"Sort key" = "Clé de tri";
-"A sort key must be exactly three lowercase letters." = "Une clé de tri doit comporter exactement trois lettres minuscules.";
-"Shuttle sorts every menu alphabetically. The sort key is a hidden prefix that decides where this entry lands: \"aaa\" puts it first, \"zzz\" last." = "Shuttle trie chaque menu par ordre alphabétique. La clé de tri est un préfixe masqué qui détermine la position de cet élément : « aaa » le place en premier, « zzz » en dernier.";
+"Entries appear in the menu in the order they have in the sidebar. Drag a row there to move it, or drop it just under an open group to file it in that submenu." = "Les éléments apparaissent dans le menu dans l’ordre de la barre latérale. Faites glisser une ligne pour la déplacer, ou déposez-la juste sous un groupe ouvert pour la placer dans ce sous-menu.";
 "Stored in the file as %@" = "Enregistré dans le fichier sous la forme %@";
 
 /* ---- Host entry: command ---- */
@@ -142,6 +149,7 @@
 /* ---- Menu bar installed while the editor window is open ---- */
 
 "About %@" = "À propos de %@";
+"Homepage" = "Page d’accueil";
 "Hide %@" = "Masquer %@";
 "Quit %@" = "Quitter %@";
 "Edit" = "Édition";

@@ -4,7 +4,6 @@
 //
 
 #import "AppDelegate.h"
-#import "AboutWindowController.h"
 #import "Shuttle-Swift.h"
 
 @implementation AppDelegate
@@ -285,7 +284,9 @@
     if (showSshConfigHosts) {
         // Read configuration from ssh config
         NSDictionary* servers = [self parseSSHConfigFile];
-        for (NSString* key in servers) {
+        // The menu keeps the order of the entries, and a dictionary has none, so
+        // the hosts read from the SSH config are appended in alphabetical order.
+        for (NSString* key in [[servers allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]) {
             BOOL skipCurrent = NO;
             NSDictionary* cfg = [servers objectForKey:key];
             
@@ -382,68 +383,63 @@
 }
 
 - (void) buildMenu:(NSArray*)data addToMenu:(NSMenu *)m {
-    // go through the array and sort out the menus and the leafs into
-    // separate bucks so we can sort them independently.
-    NSMutableDictionary* menus = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary* leafs = [[NSMutableDictionary alloc] init];
-    
-    for (NSDictionary* item in data) {
+    // Walk the entries in the order they have in the config file: that order is
+    // what the configuration window lets you rearrange by dragging rows, so it
+    // is the menu order. Titles are no longer sorted, which also means two
+    // entries can share a name without one hiding the other.
+    NSInteger pos = 0;
+
+    for (id element in data) {
+        if (![element isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSDictionary* item = element;
+
         if (item[@"cmd"] && item[@"name"]) {
             // this is a leaf
-            [leafs setObject:item forKey:item[@"name"]];
-        } else {
-            // must be a menu - add all instances
-            for (NSString* key in item) {
-                [menus setObject:item[key] forKey:key];
+            NSMenuItem* menuItem = [[NSMenuItem alloc] init];
+
+            //Get the command we are going to run in termainal
+            NSString *menuCmd = item[@"cmd"];
+            //Get the theme for this terminal session
+            NSString *termTheme = item[@"theme"];
+            //Get the name for the terminal session
+            NSString *termTitle = item[@"title"];
+            //Get the value of setting inTerminal
+            NSString *termWindow = item[@"inTerminal"];
+            //Get the menu name will will use this as the title if title is null.
+            [self separatorSortRemoval:item[@"name"]];
+
+            //Place the terminal command, theme, and title into an comma delimited string
+            NSString *menuRepObj = [NSString stringWithFormat:@"%@¬_¬%@¬_¬%@¬_¬%@¬_¬%@", menuCmd, termTheme, termTitle, termWindow, menuName];
+
+            [menuItem setTitle:menuName];
+            [menuItem setRepresentedObject:menuRepObj];
+            [menuItem setAction:@selector(openHost:)];
+            [m insertItem:menuItem atIndex:pos++];
+            if (addSeparator) {
+                [m insertItem:[NSMenuItem separatorItem] atIndex:pos++];
             }
-        }
-    }
-    
-    NSArray* menuKeys = [[menus allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    NSArray* leafKeys = [[leafs allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    
-    NSInteger pos = 0;
-    
-    // create menus first
-    for (NSString* key in menuKeys) {
-        NSMenu* subMenu = [[NSMenu alloc] init];
-        NSMenuItem* menuItem = [[NSMenuItem alloc] init];
-        [self separatorSortRemoval:key];
-        [menuItem setTitle:menuName];
-        [menuItem setSubmenu:subMenu];
-        [m insertItem:menuItem atIndex:pos++];
-        if (addSeparator) {
-            [m insertItem:[NSMenuItem separatorItem] atIndex:pos++];
-        }
-        // build submenu
-        [self buildMenu:menus[key] addToMenu:subMenu];
-    }
-    
-    // now create leafs
-    for (NSString *key in leafKeys) {
-        NSDictionary* cfg = leafs[key];
-        NSMenuItem* menuItem = [[NSMenuItem alloc] init];
-        
-        //Get the command we are going to run in termainal
-        NSString *menuCmd = cfg[@"cmd"];
-        //Get the theme for this terminal session
-        NSString *termTheme = cfg[@"theme"];
-        //Get the name for the terminal session
-        NSString *termTitle = cfg[@"title"];
-        //Get the value of setting inTerminal
-        NSString *termWindow = cfg[@"inTerminal"];
-        //Get the menu name will will use this as the title if title is null.
-        [self separatorSortRemoval:cfg[@"name"]];
-        
-        //Place the terminal command, theme, and title into an comma delimited string
-        NSString *menuRepObj = [NSString stringWithFormat:@"%@¬_¬%@¬_¬%@¬_¬%@¬_¬%@", menuCmd, termTheme, termTitle, termWindow, menuName];
-        
-        [menuItem setTitle:menuName];
-        [menuItem setRepresentedObject:menuRepObj];
-        [menuItem setAction:@selector(openHost:)];
-        [m insertItem:menuItem atIndex:pos++];
-        if (addSeparator) {
-            [m insertItem:[NSMenuItem separatorItem] atIndex:pos++];
+        } else {
+            // must be a menu - add all instances. A dictionary has no order of
+            // its own, so the keys of a hand-written multi-key entry are sorted;
+            // the editor always writes one submenu per dictionary.
+            for (NSString* key in [[item allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]) {
+                if (![item[key] isKindOfClass:[NSArray class]]) {
+                    continue;
+                }
+                NSMenu* subMenu = [[NSMenu alloc] init];
+                NSMenuItem* menuItem = [[NSMenuItem alloc] init];
+                [self separatorSortRemoval:key];
+                [menuItem setTitle:menuName];
+                [menuItem setSubmenu:subMenu];
+                [m insertItem:menuItem atIndex:pos++];
+                if (addSeparator) {
+                    [m insertItem:[NSMenuItem separatorItem] atIndex:pos++];
+                }
+                // build submenu
+                [self buildMenu:item[key] addToMenu:subMenu];
+            }
         }
     }
 }
@@ -832,16 +828,7 @@
 }
 
 - (IBAction)showAbout:(id)sender {
-    
-    //Call the windows controller
-    AboutWindowController *aboutWindow = [[AboutWindowController alloc] initWithWindowNibName:@"AboutWindowController"];
-    
-    //Set the window to stay on top
-    [aboutWindow.window makeKeyAndOrderFront:nil];
-    [aboutWindow.window setLevel:NSFloatingWindowLevel];
-    
-    //Show the window
-    [aboutWindow showWindow:self];
+    [ShuttleAboutWindow showAboutWindow];
 }
 
 - (IBAction)quit:(id)sender {

@@ -19,7 +19,7 @@
 		37443D8D305AA260001ACEE1 /* SettingsDetailViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D8C305AA260001ACEE1 /* SettingsDetailViews.swift */; };
 		37443D8F305AA284001ACEE1 /* HostNodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D8E305AA284001ACEE1 /* HostNodeDetailView.swift */; };
 		37443D91305AA2A3001ACEE1 /* ShuttleConfigEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D90305AA2A3001ACEE1 /* ShuttleConfigEditor.swift */; };
-		6FC541A31D45CF7F00A896E3 /* AboutWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6FC541A51D45CF7F00A896E3 /* AboutWindowController.xib */; };
+		37443D93305AA400001ACEE1 /* ShuttleAboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */; };
 		7E74A7C61789CE2F0079E0D2 /* shuttle.default.json in Resources */ = {isa = PBXBuildFile; fileRef = 7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */; };
 		A124BA191D45572B00218F2F /* iTerm2-stable-current-window.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A124BA161D45572B00218F2F /* iTerm2-stable-current-window.scpt */; };
 		A124BA1A1D45572B00218F2F /* iTerm2-stable-new-tab-default.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A124BA171D45572B00218F2F /* iTerm2-stable-new-tab-default.scpt */; };
@@ -31,7 +31,6 @@
 		A12D9BF71BCF2C73004F52A6 /* terminal-new-tab-default.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A12D9BEE1BCF2C73004F52A6 /* terminal-new-tab-default.scpt */; };
 		A12D9BF81BCF2C73004F52A6 /* terminal-new-window.scpt in Resources */ = {isa = PBXBuildFile; fileRef = A12D9BEF1BCF2C73004F52A6 /* terminal-new-window.scpt */; };
 		A1B7B9DD1DB53ED200809327 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1B7B9DF1DB53ED200809327 /* Localizable.strings */; };
-		A1D700071A5DCE8D003563E4 /* AboutWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D700061A5DCE8D003563E4 /* AboutWindowController.m */; };
 		C149EBFE15D5214600B1F558 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C149EBFD15D5214600B1F558 /* Cocoa.framework */; };
 		C149EC0815D5214600B1F558 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C149EC0615D5214600B1F558 /* InfoPlist.strings */; };
 		C149EC0A15D5214600B1F558 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C149EC0915D5214600B1F558 /* main.m */; };
@@ -55,6 +54,7 @@
 		37443D8C305AA260001ACEE1 /* SettingsDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDetailViews.swift; sourceTree = "<group>"; };
 		37443D8E305AA284001ACEE1 /* HostNodeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostNodeDetailView.swift; sourceTree = "<group>"; };
 		37443D90305AA2A3001ACEE1 /* ShuttleConfigEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleConfigEditor.swift; sourceTree = "<group>"; };
+		37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleAboutWindow.swift; sourceTree = "<group>"; };
 		7E72D21E178003ED00A6389C /* Shuttle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Shuttle.entitlements; sourceTree = "<group>"; };
 		7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shuttle.default.json; sourceTree = "<group>"; };
 		A124BA161D45572B00218F2F /* iTerm2-stable-current-window.scpt */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iTerm2-stable-current-window.scpt"; sourceTree = "<group>"; };
@@ -74,16 +74,9 @@
 		A1B7B9E41DB5436700809327 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A1B7B9E51DB5436700809327 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = es; path = es.lproj/Credits.rtf; sourceTree = "<group>"; };
 		A1B7B9E61DB5436700809327 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
-		A1B7B9ED1DB54D6700809327 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AboutWindowController.xib; sourceTree = "<group>"; };
 		A1B7B9EE1DB54D7B00809327 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
 		A1B7B9EF1DB54D7F00809327 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
-		A1B7B9F01DB54D8900809327 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AboutWindowController.strings; sourceTree = "<group>"; };
-		A1B7B9F11DB54D8C00809327 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/AboutWindowController.strings"; sourceTree = "<group>"; };
-		A1B7B9F21DB54D9000809327 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/AboutWindowController.strings; sourceTree = "<group>"; };
-		A1D700051A5DCDF4003563E4 /* AboutWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutWindowController.h; sourceTree = "<group>"; };
-		A1D700061A5DCE8D003563E4 /* AboutWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AboutWindowController.m; sourceTree = "<group>"; };
 		BDCFF1521E4E890A00B365C9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainMenu.strings; sourceTree = "<group>"; };
-		BDCFF1531E4E890A00B365C9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/AboutWindowController.strings; sourceTree = "<group>"; };
 		BDCFF1541E4E890A00B365C9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BDCFF1551E4E890A00B365C9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = fr; path = fr.lproj/Credits.rtf; sourceTree = "<group>"; };
 		BDCFF1561E4E890A00B365C9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -205,9 +198,7 @@
 				C149EC1215D5214600B1F558 /* MainMenu.xib */,
 				0ADB3B10178EF8E2004E9BB9 /* Images */,
 				C149EC0415D5214600B1F558 /* Supporting Files */,
-				A1D700051A5DCDF4003563E4 /* AboutWindowController.h */,
-				A1D700061A5DCE8D003563E4 /* AboutWindowController.m */,
-				6FC541A51D45CF7F00A896E3 /* AboutWindowController.xib */,
+				37443D92305AA400001ACEE1 /* ShuttleAboutWindow.swift */,
 				37443D85305AA1CD001ACEE1 /* ConfigEditor */,
 			);
 			path = Shuttle;
@@ -291,7 +282,6 @@
 				24399FE6219CD0F700C8658F /* virtual-with-screen.scpt in Resources */,
 				0ADB3B0C178EF8DB004E9BB9 /* StatusIconAlt.png in Resources */,
 				C149EC0815D5214600B1F558 /* InfoPlist.strings in Resources */,
-				6FC541A31D45CF7F00A896E3 /* AboutWindowController.xib in Resources */,
 				0ADB3B0F178EF8DB004E9BB9 /* StatusIconAlt@2x.png in Resources */,
 				0ADB3B0E178EF8DB004E9BB9 /* StatusIcon@2x.png in Resources */,
 				A124BA191D45572B00218F2F /* iTerm2-stable-current-window.scpt in Resources */,
@@ -317,7 +307,7 @@
 				37443D87305AA1CD001ACEE1 /* ShuttleConfiguration.swift in Sources */,
 				37443D8B305AA21A001ACEE1 /* ConfigEditorView.swift in Sources */,
 				0ADB3B13178F3DE4004E9BB9 /* LaunchAtLoginController.m in Sources */,
-				A1D700071A5DCE8D003563E4 /* AboutWindowController.m in Sources */,
+				37443D93305AA400001ACEE1 /* ShuttleAboutWindow.swift in Sources */,
 				37443D91305AA2A3001ACEE1 /* ShuttleConfigEditor.swift in Sources */,
 				37443D8F305AA284001ACEE1 /* HostNodeDetailView.swift in Sources */,
 				C149EC0A15D5214600B1F558 /* main.m in Sources */,
@@ -330,18 +320,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		6FC541A51D45CF7F00A896E3 /* AboutWindowController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				A1B7B9ED1DB54D6700809327 /* Base */,
-				A1B7B9F01DB54D8900809327 /* en */,
-				A1B7B9F11DB54D8C00809327 /* zh-Hans */,
-				A1B7B9F21DB54D9000809327 /* es */,
-				BDCFF1531E4E890A00B365C9 /* fr */,
-			);
-			name = AboutWindowController.xib;
-			sourceTree = "<group>";
-		};
 		A1B7B9DF1DB53ED200809327 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (

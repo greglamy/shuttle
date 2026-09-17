@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-09-17
+### Changed
+- Menus follow the order of the entries in the configuration file instead of being sorted alphabetically, and the editor's source list reorders them by drag and drop. Dropping a row just under an open group files it in that submenu; **Move Up**, **Move Down** and **Move to** are in the contextual menu, and **Sort by name** commands restore an alphabetical order for one submenu or for the whole menu.
+- The `[abc]` sort prefix is retired: it is still stripped from titles read from the file, including by the menu builder, but the editor no longer offers it and drops it when saving. The `[---]` separator marker is unchanged.
+- Two entries can share a name in the same menu; both now appear. The menu builder used to key its items by title, so one of them was silently dropped. The warning about duplicate names is gone with it.
+- Hosts read from `~/.ssh/config` are appended in alphabetical order, since the config file gives them no order of their own.
+- The About window has been rebuilt: the copyright notice is laid out on one line per holder instead of being clipped to a single truncated line, and the window now shows the app icon, name, tagline, version and a link to the project page. It replaces a fixed 460×172 xib.
+
+### Fixed
+- Right-clicking a host inside a group in the editor acted on the whole group: **Delete** removed the group and everything in it. The contextual menu was attached to the disclosure group, which also covers its child rows. Every entry is now a row of its own and its menu acts on the entry under the pointer.
+
 ## [2.1.0] - 2026-09-16
 ### Added
 - A configuration editor window, replacing hand-editing of `~/.shuttle.json` for everyday changes. Open it from **Settings > Edit** in the menu. It covers both the global settings (terminal, iTerm version, default theme, default window mode, editor, launch at login, SSH config hosts and the ignore lists) and the whole `hosts` tree, with commands and groups added, duplicated, moved between groups and deleted from a source list.

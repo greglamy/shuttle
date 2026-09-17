@@ -8,3 +8,8 @@
 "Version: " = "Versión: ";
 " - A simple SSH shortcut menu." = " - Un SSH menu simple de shortcuts (atajos).";
 "Edit as Text…" = "Editar como texto…";
+
+/* ---- About window ---- */
+
+"About %@" = "Acerca de %@";
+"Homepage" = "Página Principal";

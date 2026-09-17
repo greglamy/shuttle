@@ -115,37 +115,34 @@ enum TerminalWindowMode: String, CaseIterable, Identifiable, Hashable {
 
 // MARK: - Menu name decorations
 
-/// A menu title split into its three meaningful parts.
+/// A menu title and the one marker Shuttle still encodes inside it.
 ///
-/// Shuttle sorts menu entries alphabetically on the *raw* title, then strips two
-/// markers before displaying it: `[abc]` (three lowercase letters, used purely to
-/// force a position in the sort) and `[---]` (insert a separator after the entry).
-/// Editing those parts separately keeps the user from typing brackets by hand.
+/// Shuttle strips `[---]` from a title before displaying it and inserts a
+/// separator after the entry instead. Editing that part separately keeps the
+/// user from typing brackets by hand.
+///
+/// Titles used to be able to carry a `[abc]` sort marker as well, because every
+/// menu was sorted alphabetically. Menus now follow the order of the entries in
+/// the file, so that marker is dropped when a title is read.
 struct MenuItemName: Hashable, Sendable {
     /// The title as shown in the menu, with all markers removed.
     var text: String = ""
-    /// Exactly three lowercase letters, or `nil` when no sort override is set.
-    var sortKey: String?
     /// Whether a separator follows this entry in the menu.
     var addsSeparator: Bool = false
 
-    static let sortKeyLength = 3
-
-    init(text: String = "", sortKey: String? = nil, addsSeparator: Bool = false) {
+    init(text: String = "", addsSeparator: Bool = false) {
         self.text = text
-        self.sortKey = sortKey
         self.addsSeparator = addsSeparator
     }
 
     init(raw: String) {
         // Built locally: `Regex` is not Sendable, so it cannot be a static.
-        let sortMarker = /\[[a-z]{3}\]/
+        let legacySortMarker = /\[[a-z]{3}\]/
         let separatorMarker = /\[-{3}\]/
 
         var remainder = raw
 
-        if let match = remainder.firstMatch(of: sortMarker) {
-            sortKey = String(remainder[match.range].dropFirst().dropLast())
+        if let match = remainder.firstMatch(of: legacySortMarker) {
             remainder.removeSubrange(match.range)
         }
 
@@ -157,22 +154,9 @@ struct MenuItemName: Hashable, Sendable {
         text = remainder.trimmingCharacters(in: .whitespaces)
     }
 
-    /// The string written back to JSON. The sort marker is emitted as a prefix
-    /// because that is the only position where it actually affects sorting.
+    /// The string written back to JSON.
     var raw: String {
-        var result = ""
-        if let sortKey, Self.isValidSortKey(sortKey) {
-            result += "[\(sortKey)]"
-        }
-        result += text
-        if addsSeparator {
-            result += "[---]"
-        }
-        return result
-    }
-
-    static func isValidSortKey(_ candidate: String) -> Bool {
-        candidate.count == sortKeyLength && candidate.allSatisfy { $0.isLowercase && $0.isLetter && $0.isASCII }
+        addsSeparator ? text + "[---]" : text
     }
 }
 
@@ -441,17 +425,146 @@ extension Array<HostNode> {
         return nil
     }
 
-    /// Appends `node` to the group with the given id, or to the root when `nil`.
+    /// Appends `nodes` to the group with the given id, or to the root when `nil`.
     @discardableResult
-    mutating func appendNode(_ node: HostNode, toGroup groupID: UUID?) -> Bool {
+    mutating func appendNodes(_ nodes: [HostNode], toGroup groupID: UUID?) -> Bool {
         guard let groupID else {
-            append(node)
+            append(contentsOf: nodes)
             return true
         }
         return updateNode(id: groupID) { parent in
             if case .group(var children) = parent.kind {
-                children.append(node)
+                children.append(contentsOf: nodes)
                 parent.kind = .group(children)
+            }
+        }
+    }
+
+    @discardableResult
+    mutating func appendNode(_ node: HostNode, toGroup groupID: UUID?) -> Bool {
+        appendNodes([node], toGroup: groupID)
+    }
+
+    /// Inserts `nodes` ahead of every other child of the group with the given id.
+    @discardableResult
+    mutating func prependNodes(_ nodes: [HostNode], toGroup groupID: UUID) -> Bool {
+        updateNode(id: groupID) { parent in
+            if case .group(var children) = parent.kind {
+                children.insert(contentsOf: nodes, at: children.startIndex)
+                parent.kind = .group(children)
+            }
+        }
+    }
+
+    /// Inserts `nodes` right after the node with the given id, at any depth, so
+    /// they become its next siblings.
+    @discardableResult
+    mutating func insertNodes(_ nodes: [HostNode], after id: UUID) -> Bool {
+        for index in indices {
+            if self[index].id == id {
+                insert(contentsOf: nodes, at: index + 1)
+                return true
+            }
+            if case .group(var children) = self[index].kind {
+                if children.insertNodes(nodes, after: id) {
+                    self[index].kind = .group(children)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /// Moves the sources of a drag so they land right after `anchorID`: as its
+    /// first children when `inside` is true (the anchor is an open submenu),
+    /// otherwise as its next siblings. A `nil` anchor means the top of the menu.
+    mutating func moveNodes(ids: [UUID], after anchorID: UUID?, inside: Bool) {
+        // Nothing can be dropped into itself or into its own subtree, and the
+        // anchor must survive the removal below for its position to be found.
+        let sources = ids.filter { id in
+            guard let anchorID else { return true }
+            return id != anchorID && !isDescendant(anchorID, of: id)
+        }
+        guard !sources.isEmpty else { return }
+
+        let moved = sources.compactMap { removeNode(id: $0) }
+        guard !moved.isEmpty else { return }
+
+        guard let anchorID else {
+            insert(contentsOf: moved, at: startIndex)
+            return
+        }
+
+        let inserted = inside
+            ? prependNodes(moved, toGroup: anchorID)
+            : insertNodes(moved, after: anchorID)
+
+        // The anchor is gone, which only happens if it was dragged along: keep
+        // the entries rather than dropping them on the floor.
+        if !inserted {
+            append(contentsOf: moved)
+        }
+    }
+
+    /// Moves the sources of a drag to the end of the top-level menu.
+    mutating func moveNodesToEnd(ids: [UUID]) {
+        let moved = ids.compactMap { removeNode(id: $0) }
+        append(contentsOf: moved)
+    }
+
+    /// Swaps a node with the sibling `offset` positions away. `false` means the
+    /// node is already at that end of its menu.
+    @discardableResult
+    mutating func moveNode(id: UUID, by offset: Int) -> Bool {
+        for index in indices {
+            if self[index].id == id {
+                let target = index + offset
+                guard indices.contains(target) else { return false }
+                swapAt(index, target)
+                return true
+            }
+            if case .group(var children) = self[index].kind {
+                if children.moveNode(id: id, by: offset) {
+                    self[index].kind = .group(children)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /// The menu a node belongs to, including the node itself.
+    func siblings(of id: UUID) -> [HostNode] {
+        guard let parentID = parentID(of: id) else { return self }
+        return node(id: parentID)?.children ?? []
+    }
+
+    /// Sorts the children of a group (the root when `nil`) the way Shuttle's
+    /// menus used to be ordered: submenus first, then commands, each by name.
+    mutating func sortNodes(inGroup groupID: UUID?, recursively: Bool) {
+        guard let groupID else {
+            sortForMenu(recursively: recursively)
+            return
+        }
+        updateNode(id: groupID) { parent in
+            if case .group(var children) = parent.kind {
+                children.sortForMenu(recursively: recursively)
+                parent.kind = .group(children)
+            }
+        }
+    }
+
+    private mutating func sortForMenu(recursively: Bool) {
+        sort { lhs, rhs in
+            if lhs.isGroup != rhs.isGroup { return lhs.isGroup }
+            return lhs.name.text.localizedStandardCompare(rhs.name.text) == .orderedAscending
+        }
+
+        guard recursively else { return }
+        for index in indices {
+            if case .group(var children) = self[index].kind {
+                children.sortForMenu(recursively: true)
+                self[index].kind = .group(children)
             }
         }
     }

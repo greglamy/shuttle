@@ -24,3 +24,7 @@
 "bad \"iTerm_version\": \"VALUE\" in the JSON settings" = "错误的 \"iTerm_version\": \"VALUE\" 在 JSON 设置中";
 
 "Edit as Text…" = "以文本方式编辑…";
+/* ---- About window ---- */
+
+"About %@" = "关于 %@";
+"Homepage" = "官方网站";

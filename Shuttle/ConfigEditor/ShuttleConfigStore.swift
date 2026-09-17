@@ -112,7 +112,6 @@ final class ShuttleConfigStore {
 
         let copyName = MenuItemName(
             text: original.name.text + " copy",
-            sortKey: original.name.sortKey,
             addsSeparator: original.name.addsSeparator
         )
         let copy: HostNode = switch original.kind {
@@ -120,7 +119,7 @@ final class ShuttleConfigStore {
         case .group(let children): HostNode(name: copyName, kind: .group(children.reidentified()))
         }
 
-        configuration.hosts.appendNode(copy, toGroup: configuration.hosts.parentID(of: id))
+        configuration.hosts.insertNodes([copy], after: id)
         return copy.id
     }
 
@@ -131,6 +130,57 @@ final class ShuttleConfigStore {
         if let groupID, configuration.hosts.isDescendant(groupID, of: id) { return }
         guard let moved = configuration.hosts.removeNode(id: id) else { return }
         configuration.hosts.appendNode(moved, toGroup: groupID)
+    }
+
+    // MARK: Ordering
+
+    /// Applies a drag: `ids` land right after `anchorID`, inside it when it is
+    /// an open submenu. Menus follow the order of the entries, so this is what
+    /// sets the position of a command or a submenu in the Shuttle menu.
+    func reorder(ids: [UUID], after anchorID: UUID?, inside: Bool) {
+        configuration.hosts.moveNodes(ids: ids, after: anchorID, inside: inside)
+    }
+
+    /// Applies a drag that landed ahead of `beforeID`: that row keeps its place
+    /// in its own menu and the dragged entries take the slot in front of it.
+    func reorder(ids: [UUID], before beforeID: UUID) {
+        let moving = Set(ids)
+        let siblings = configuration.hosts.siblings(of: beforeID)
+        guard let index = siblings.firstIndex(where: { $0.id == beforeID }) else { return }
+
+        // The dragged entries land after the closest row above the drop that is
+        // not itself being dragged, or at the top of the menu when there is
+        // none: an entry dragged just above the one that already follows it
+        // therefore stays where it is instead of being lost.
+        if let anchor = siblings[..<index].last(where: { !moving.contains($0.id) }) {
+            reorder(ids: ids, after: anchor.id, inside: false)
+        } else {
+            let parentID = configuration.hosts.parentID(of: beforeID)
+            reorder(ids: ids, after: parentID, inside: parentID != nil)
+        }
+    }
+
+    /// Applies a drag that landed past the last row: `ids` go to the end of the
+    /// top-level menu.
+    func reorderToEnd(ids: [UUID]) {
+        configuration.hosts.moveNodesToEnd(ids: ids)
+    }
+
+    /// Moves a node one step up or down among its siblings.
+    func move(id: UUID, by offset: Int) {
+        configuration.hosts.moveNode(id: id, by: offset)
+    }
+
+    /// Whether `move(id:by:)` would do anything, used to disable the commands.
+    func canMove(id: UUID, by offset: Int) -> Bool {
+        let siblings = configuration.hosts.siblings(of: id)
+        guard let index = siblings.firstIndex(where: { $0.id == id }) else { return false }
+        return siblings.indices.contains(index + offset)
+    }
+
+    /// Sorts a submenu (the whole menu when `groupID` is `nil`) by name.
+    func sort(group groupID: UUID?, recursively: Bool = false) {
+        configuration.hosts.sortNodes(inGroup: groupID, recursively: recursively)
     }
 
     /// Groups that `id` can be moved into, excluding its own subtree and its
@@ -166,32 +216,11 @@ final class ShuttleConfigStore {
     }
 
     private func collectWarnings(in nodes: [HostNode], path: String, into result: inout [Warning]) {
-        // Shuttle keys its menus and leaves by title, so same-named siblings of
-        // the same kind overwrite each other and only one reaches the menu.
-        var seenTitles: [String: Int] = [:]
-        for node in nodes {
-            seenTitles[node.name.raw, default: 0] += 1
-        }
-
         for node in nodes {
             let label = path.isEmpty ? node.name.text : "\(path) ▸ \(node.name.text)"
 
             if node.name.text.trimmingCharacters(in: .whitespaces).isEmpty {
                 result.append(Warning(message: String(localized: "An entry has no name and will not appear in the menu."), nodeID: node.id))
-            }
-
-            if let sortKey = node.name.sortKey, !MenuItemName.isValidSortKey(sortKey) {
-                result.append(Warning(
-                    message: String(localized: "\"\(label)\" has an invalid sort key; it must be exactly three lowercase letters."),
-                    nodeID: node.id
-                ))
-            }
-
-            if seenTitles[node.name.raw, default: 0] > 1 {
-                result.append(Warning(
-                    message: String(localized: "\"\(label)\" shares its name with another entry in the same menu; only one of them will be shown."),
-                    nodeID: node.id
-                ))
             }
 
             switch node.kind {
